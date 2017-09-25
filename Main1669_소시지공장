@@ -1,0 +1,58 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.StringTokenizer;
+
+public class Main1669_소시지공장 {
+
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		int num = Integer.parseInt(in.readLine().trim());
+		int[][] sosage = new int[num][2];
+		int[][] sosage2 = new int[num][2];
+		StringTokenizer st = new StringTokenizer(in.readLine());
+		
+		int temp=0;
+		for(int i=0; i<num; i++){
+			for(int j=0; j<2; j++){
+				temp = Integer.parseInt(st.nextToken());
+				sosage[i][j] = temp;
+				sosage2[i][j] = temp;
+			}
+		}
+		
+		
+		Arrays.sort(sosage, new Comparator<int[]>() {
+			public int compare(int[] o1, int[] o2) {
+				if(o1[0]==o2[0]){
+					return o1[1]-o2[1];
+				}else{
+					return o1[0]-o2[0];
+				}
+			}
+		});
+		
+		
+		int past = 0;
+		int time = 0;
+		int made = 0;
+		while(made<num){
+			past = 0;
+			time++;
+			for(int i=0; i<num; i++){
+				if(past<=sosage[i][1]){
+					made++;
+					past = sosage[i][1];
+					sosage[i][1] = -1;
+				}
+			}
+		}
+		System.out.println(time);
+		
+		
+		
+	}
+
+}
