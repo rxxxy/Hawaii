@@ -1,0 +1,270 @@
+package com.scsa.jungol;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+public class Main1824_스도쿠 {
+	static int[][] sudoku = new int[9][9];
+	static int[] rows = new int[9];
+	static int[] cols = new int[9];
+	static int[] squares = new int[9];
+	
+	public static void main(String[] args) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = null;
+		
+		//1. 스도쿠 배열, 각 행, 각 열, 각 사방면에 빈칸의 개수 기입하기
+		for(int i=0; i<9; i++){
+			st = new StringTokenizer(in.readLine());
+			for(int j=0; j<9; j++){
+				sudoku[i][j] = Integer.parseInt(st.nextToken());
+				if(sudoku[i][j]==0){
+					rows[i]++;
+					cols[j]++;
+					if(i>=6){
+						if(j>=6){
+							squares[8]++;
+						}else if(j>=3){
+							squares[7]++;
+						}else{
+							squares[6]++;
+						}
+					}else if(i>=3){
+						if(j>=6){
+							squares[5]++;
+						}else if(j>=3){
+							squares[4]++;
+						}else{
+							squares[3]++;
+						}
+					}else{
+						if(j>=6){
+							squares[2]++;
+						}else if(j>=3){
+							squares[1]++;
+						}else{
+							squares[0]++;
+						}
+					}
+				}
+			}
+		}
+		
+		//2. row, col, square에서 0의 1의 값을 갖는 애들 처리 하기
+		//처리하면 ! 꺄! 0인 값들을 만들어서 나중에 체크할 애들이 줄음
+		
+		int sum = 0;
+		for(int i=0; i<9; i++){
+			if(rows[i]==1) sum++;
+			if(cols[i]==1) sum++;
+			if(squares[i]==1) sum++;
+		}
+		
+		while(sum!=0){
+			for(int i=0; i<9; i++){
+				if(rows[i]==1){
+					findRowNumber(i);
+				}
+			}
+			
+			for(int i=0; i<9; i++){
+				if(cols[i]==1){
+					findColNumber(i);
+				}
+			}
+			
+			for(int i=0; i<9; i++){
+				if(squares[i]==1){
+					findSquareNumber(i);
+				}
+			}
+			
+			sum = 0;
+			
+			for(int i=0; i<9; i++){
+				if(rows[i]==1) sum++;
+				if(cols[i]==1) sum++;
+				if(squares[i]==1) sum++;
+			}
+		}
+		
+		//3. 남은 수들 처리하러 DFS들어가기
+		outer: for(int i=0; i<9; i++){
+					for(int j=0; j<9; j++){
+						if(rows[i]==0) continue outer;
+						dfs(i);
+					}
+		}
+		
+		
+		//4. 바뀐 스도쿠 배열 출력하기
+		for(int i=0; i<9; i++){
+			for(int j=0; j<9; j++){
+				System.out.print(sudoku[i][j]+" ");
+			}
+			System.out.println();
+		}
+		
+		
+		
+	}//END MAIN
+	
+	public static void findRowNumber(int index){
+		int zeroIndex = 0;
+		int number = 0;
+		boolean[] check = new boolean[9];
+		
+		for(int i=0; i<9; i++){
+			if(sudoku[index][i]==0){
+				zeroIndex = i;
+			}else{
+				check[sudoku[index][i]-1] = true;
+			}
+		}
+		
+		for(int i=0; i<9; i++){
+			if(!check[i]){
+				number = i+1;
+			}
+		}
+		
+		sudoku[index][zeroIndex] = number;
+		rows[index]--;
+		cols[zeroIndex]--;
+		if(index>=6){
+			if(zeroIndex>=6){
+				squares[8]--;
+			}else if(zeroIndex>=3){
+				squares[7]--;
+			}else{
+				squares[6]--;
+			}
+		}else if(index>=3){
+			if(zeroIndex>=6){
+				squares[5]--;
+			}else if(zeroIndex>=3){
+				squares[4]--;
+			}else{
+				squares[3]--;
+			}
+		}else{
+			if(zeroIndex>=6){
+				squares[2]--;
+			}else if(zeroIndex>=3){
+				squares[1]--;
+			}else{
+				squares[0]--;
+			}
+		}
+	}//END findRowNumber
+	
+	public static void findColNumber(int index){
+		int zeroIndex = 0;
+		int number = 0;
+		boolean[] check = new boolean[9];
+		
+		for(int i=0; i<9; i++){
+			if(sudoku[i][index]==0){
+				zeroIndex = i;
+			}else{
+				check[sudoku[i][index]-1] = true;
+			}
+		}
+		for(int i=0; i<9; i++){
+			if(!check[i]){
+				number = i+1;
+			}
+		}
+		
+		sudoku[zeroIndex][index] = number;
+		rows[zeroIndex]--;
+		cols[index]--;
+		if(zeroIndex>=6){
+			if(index>=6){
+				squares[8]--;
+			}else if(index>=3){
+				squares[7]--;
+			}else{
+				squares[6]--;
+			}
+		}else if(zeroIndex>=3){
+			if(index>=6){
+				squares[5]--;
+			}else if(index>=3){
+				squares[4]--;
+			}else{
+				squares[3]--;
+			}
+		}else{
+			if(index>=6){
+				squares[2]--;
+			}else if(index>=3){
+				squares[1]--;
+			}else{
+				squares[0]--;
+			}
+		}
+	}//END findColNumber
+	
+	public static void findSquareNumber(int index){
+		int[] zeroIndex = new int[2];
+		int number = 0;
+		boolean[] check = new boolean[9];
+		
+		int row = index/3;
+		int col = index%3;
+		
+		for(int i=3*row; i<3*row+3; i++){
+			for(int j=col*3; j<col*3+3; j++){
+				if(sudoku[i][j]==0){
+					zeroIndex = new int[]{i,j};
+				}else{
+					check[sudoku[i][j]-1] = true;
+				}
+			}
+		}
+		
+		for(int i=0; i<9; i++){
+			if(!check[i]){
+				number = i+1;
+			}
+		}
+		
+		sudoku[zeroIndex[0]][zeroIndex[1]] = number;
+		squares[index]--;
+		rows[zeroIndex[0]]--;
+		cols[zeroIndex[1]]--;
+	}//END findSquareNumber
+	
+	
+	public static void dfs(int row){
+		boolean[] temp = new boolean[9];
+		//숫자가 들어갈 수 있는 blank 목록
+		ArrayList<Integer> blank = new ArrayList<>();
+		//들어갈 수 있는 숫자 목록
+		ArrayList<Integer> number = new ArrayList<>();
+		
+		//들어갈 수 있는 숫자로 가능한 조합을 뽑아서 blank에 순서대로 넣어주면서
+		//정합성 검사하고 다음 dfs진행하는 것이 어떨까?
+		
+		for(int i=0; i<9; i++){
+			if(sudoku[row][i]==0){
+				blank.add(i);
+			}else{
+				temp[sudoku[row][i]-1] = true;
+			}
+		}
+		
+		for(int i=0; i<9; i++){
+			if(!temp[i]){
+				number.add(i+1);
+			}
+		}
+		
+		
+	}
+	
+}//END CLASS
