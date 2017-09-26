@@ -1,0 +1,87 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class Main1409_벽장문의이동 {
+	static int num;
+	static boolean[] doors;
+	static int[] openList;
+	static int size;
+	static int a;
+	static int b;
+	static int min;
+	
+	
+	
+	public static void move(int now, int count){
+		
+		if(now==size){
+			if(min==0){
+				min = count;
+			}else{
+				min = (min>count)? count:min;
+			}
+			return;
+		}
+		
+		
+		//이미 문이 열려 있는 경우
+		if(doors[openList[now]]==true){
+			move(now+1, count);
+			
+		//문이 열려 있지 않은 경우는 옮겨야 해
+		}else{
+			
+			//왼쪽 문으로 이동
+			int temp = a;
+			a = openList[now];
+			doors[temp] = false;
+			doors[a] = true;
+			move(now+1, count+(int)Math.abs(openList[now]-temp));
+			doors[temp] = true;
+			doors[a] = false;
+			a = temp;
+			
+			//오른쪽 문으로 이동
+			
+			temp = b;
+			b = openList[now];
+			doors[temp] = false;
+			doors[b] = true;
+			move(now+1, count+(int)Math.abs(openList[now]-temp));
+			doors[temp] = true;
+			doors[b] = false;
+			b = temp;
+			
+		}
+		
+
+		
+	}
+
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		num = Integer.parseInt(in.readLine().trim());
+		doors = new boolean[num];
+		
+		StringTokenizer st = new StringTokenizer(in.readLine());
+		a = Integer.parseInt(st.nextToken())-1;
+		b = Integer.parseInt(st.nextToken())-1;
+		doors[a] = true;
+		doors[b] = true;
+		
+		size = Integer.parseInt(in.readLine().trim());
+		openList = new int[size];
+		
+		for(int i=0; i<size; i++){
+			openList[i] = Integer.parseInt(in.readLine().trim())-1;
+		}
+		
+		
+		move(0, 0);
+		System.out.println(min);
+
+	}
+
+}
