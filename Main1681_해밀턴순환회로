@@ -1,0 +1,86 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+/*
+6
+0 93 23 32 39 46 
+0 0 7 58 59 13 
+40 98 0 14 33 98 
+3 39 0 0 13 16 
+51 25 19 88 0 47 
+65 81 63 0 6 0 
+
+101
+*/
+
+public class Main1681_해밀턴순환회로 {
+	static boolean[] visited;
+	static int num;
+	static int[][] array;
+	static int min;
+	static ArrayList<Integer> route = new ArrayList<>();
+	
+	public static void hamilton(int count, int last){
+		
+		int distance = 0;
+		for(int i=0; i<route.size()-1; i++){
+			distance += array[route.get(i)][route.get(i+1)];
+		}
+		
+		if(min!=0 && distance>min){
+			return;
+		}
+		
+		if(count==num){
+			if(array[last][0]==0) return;
+			distance = distance+array[last][0];
+			if(min==0){
+				min = distance;
+			}else{
+				min = (min>distance)? distance:min;
+			}
+			return;
+		}
+		
+		
+		for(int i=1; i<num; i++){
+			if(visited[i]==true || array[last][i]==0) continue;
+			route.add(i);
+			visited[i] = true;
+			hamilton(count+1, i);
+			route.remove(route.size()-1);
+			visited[i] = false;
+		}		
+	}
+	
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		num = Integer.parseInt(in.readLine().trim());
+		
+		array = new int[num][num];
+		StringTokenizer st = null;
+		for(int i=0; i<num; i++){
+			st = new StringTokenizer(in.readLine());
+			for(int j=0; j<num; j++){
+				array[i][j] = Integer.parseInt(st.nextToken());
+			}
+		}
+		
+		// 이미 갔던 곳 제외할 배열
+		visited = new boolean[num];
+		
+		// 모든 장소는 1번씩만 들를 수 있다.
+		// 재귀 백트래킹으로 구하자.
+		visited[0] = true;
+		route.add(0);
+		hamilton(1, 0);
+		
+		System.out.println(min);
+		
+		
+		
+	}
+}
