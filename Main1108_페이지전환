@@ -1,0 +1,113 @@
+package com.scsa.algorithm;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class Main1108_페이지전환 {
+	static int size;
+	static int[][] page;
+	static boolean[] visited;
+	static int[][] result;
+	static final int INF = 99999;
+	
+	
+	public static void change(int index){
+		int[] minTime = new int[size];
+		Arrays.fill(minTime, INF);
+		visited = new boolean[size];
+		
+		int current = index;
+		visited[current] = true;
+		minTime[current] = 0;
+		int count = 1;
+		
+		for(int i=0; i<size; i++){
+			if(!visited[i] && page[current][i]!=0 && page[current][i]<minTime[i]){
+				minTime[i] = page[current][i];
+			}
+		}
+		
+		while(true){
+			
+			if(count==size) {
+				result[index] = minTime;
+				return;
+			}
+			
+			//최소값 찾기
+			int min = INF;
+			for(int i=0; i<size; i++){
+				if(!visited[i] && min>minTime[i]){
+					current = i;
+					min = minTime[i];
+				}
+			}
+			visited[current] = true;
+			
+			//최소값을 정점으로 지정 후 카운트 증가
+			count++;
+			
+			//정점으로부터 가중치 비교 반영
+			for(int i=0; i<size; i++){
+				if(!visited[i] && page[current][i]!=0 && minTime[current]+page[current][i]<minTime[i]){
+					minTime[i] = minTime[current]+page[current][i];
+				}
+			}
+		}
+	}
+
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		int num = Integer.parseInt(in.readLine().trim());
+		
+		
+		int[][] moving = new int[num][2];
+		StringTokenizer st = null;
+		size = 0;
+		for(int i=0; i<num; i++){
+			st = new StringTokenizer(in.readLine());
+			for(int j=0; j<2; j++){
+				moving[i][j] = Integer.parseInt(st.nextToken())-1;
+				if(moving[i][j]>size){
+					size = moving[i][j];
+				}
+			}
+		}
+		
+		//1. 배열의 사이즈는 제일 큰 인덱스+1
+		size = size+1;
+		page = new int[size][size];
+		result = new int[size][size];
+		
+		//2. 배열 이동 경로 채우기
+		for(int i=0; i<num; i++){
+			page[moving[i][0]][moving[i][1]] = 1;
+		}
+		
+		//3. Dijkstra들어가기
+		//시작점은 총 size개로 시작함
+		//각각이 result 배열의 한 줄을 차지함 (시작점 index로);
+		for(int i=0; i<size; i++){
+			change(i);
+		}
+		
+			
+		//4. 배열의 평균구하기
+		double sum = 0;
+		for(int i=0; i<size; i++){
+			for(int j=0; j<size; j++){
+				if(result[i][j]==INF) continue;
+				sum += result[i][j];
+			}
+		}
+		
+		double avg = sum/(size*(size-1));
+		System.out.printf("%.3f", avg);
+		
+		
+	}
+
+}
