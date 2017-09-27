@@ -1,0 +1,111 @@
+package com.scsa.algorithm;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+public class Main1824_스도쿠 {
+	static int[][] sudoku = new int[9][9];
+	static ArrayList<int[]> zero = new ArrayList<>();
+	static int size;
+	static boolean flag;
+	
+	//ROW CHECK
+	static boolean checkRow(int num, int row, int col){
+		//중복이 있는지 없는지 체크하기
+		for(int i=0; i<9; i++){
+			if(i==col) continue;
+			if(sudoku[row][i]==num){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	//COLUMN CHECK
+	static boolean checkCol(int num, int row, int col){
+		//중복이 있는지 없는지 체크하기
+		for(int i=0; i<9; i++){
+			if(i==row) continue;
+			if(sudoku[i][col]==num){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	//SQUARE CHECK
+	static boolean checkSquare(int num, int row, int col){
+		//중복이 있는지 없는지 체크하기
+		for(int i=(row/3)*3; i<(row/3)*3+3; i++){
+			for(int j=(col/3)*3; j<(col/3)*3+3; j++){
+				if(i==row && j==col) continue;
+				if(sudoku[i][j]==num){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	
+	//DFS
+	static void dfs(int count) throws Exception{
+		
+		if(count==size){
+			throw new Exception(){
+				private static final long serialVersionUID = 1L;};
+//			for(int i=0; i<9; i++){
+//				for(int j=0; j<9; j++){
+//					System.out.print(sudoku[i][j]+" ");
+//				}
+//				System.out.println();
+//			}
+//			System.exit(0);
+		}
+		
+		int[] temp = zero.get(count);
+		int x = temp[0];
+		int y = temp[1];
+		//row와 col과 square체크
+		for(int i=1; i<=9; i++){
+			if(checkRow(i,x,y)&&checkCol(i,x,y)&&checkSquare(i,x,y)&&sudoku[x][y]==0){
+				sudoku[x][y] = i;
+				dfs(count+1);
+				sudoku[x][y] = 0;
+			}
+		}
+		
+	}
+	
+	public static void main(String[] args) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = null;
+		
+		for(int i=0; i<9; i++){
+			st = new StringTokenizer(in.readLine().trim());
+			for(int j=0; j<9; j++){
+				sudoku[i][j] = Integer.parseInt(st.nextToken());
+				if(sudoku[i][j]==0) zero.add(new int[]{i,j});
+			}
+		}
+		
+		size = zero.size();
+		
+		//DFS 들어가기
+		try {
+			dfs(0);
+		} catch (Exception e) {
+			for(int i=0; i<9; i++){
+				for(int j=0; j<9; j++){
+					System.out.print(sudoku[i][j]+" ");
+				}
+				System.out.println();
+			}
+		}
+		
+	}
+
+}
