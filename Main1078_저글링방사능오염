@@ -1,0 +1,86 @@
+package com.scsa.algorithm;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main1078_저글링방사능오염 {
+	static int num1;
+	static int num2;
+	static int[][] star;
+	static Queue<int[]> que = new LinkedList<>();
+	static int[][] moving = {{-1,0}, {1,0}, {0,-1}, {0,1}};
+	static int result;
+	
+	public static void poison(){
+		int[] temp = null;
+		int xx = 0;
+		int yy = 0;
+		int count = 0;
+		
+		while(!que.isEmpty()){
+			temp = que.poll();
+			count = star[temp[0]][temp[1]];
+			
+			for(int i=0; i<4; i++){
+				xx = temp[0]+moving[i][0];
+				yy = temp[1]+moving[i][1];
+				
+				if(xx>=0&&xx<num1&&yy>=0&&yy<num2&&star[xx][yy]==1){
+					star[xx][yy]=count+1;
+					que.add(new int[]{xx,yy});
+				}
+			}
+		}
+		
+		result = count;
+	}
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(in.readLine());
+		
+		num2 = Integer.parseInt(st.nextToken());
+		num1 = Integer.parseInt(st.nextToken());
+		star = new int[num1][num2];
+		
+		for(int i=0; i<num1; i++){
+			char[] array = in.readLine().trim().toCharArray();
+			for(int j=0; j<num2; j++){
+				star[i][j] = Integer.parseInt(String.valueOf(array[j]));
+			}
+		}
+		
+		st = new StringTokenizer(in.readLine());
+		int y = Integer.parseInt(st.nextToken())-1;
+		int x = Integer.parseInt(st.nextToken())-1;
+		
+		
+		
+		//1. BFS 들어가기
+		star[x][y] = 3;
+		que.add(new int[]{x,y});
+		poison();
+		
+		
+		//2. 시간 출력하기
+		//모두 죽을 때 까지 걸리는 시간  - 다 퍼지는데 걸리는 시간+3
+		System.out.println(result);
+		
+		//3. 남아있는 저글링 개수 출력하기
+		//죽지 않고 남아 있는 저글링 - 맵에서 1의 개수를 셈
+		int sum = 0;
+		for(int i=0; i<num1; i++){
+			for(int j=0; j<num2; j++){
+				if(star[i][j]==1){
+					sum++;
+				}
+			}
+		}
+		System.out.println(sum);
+	}
+
+}
