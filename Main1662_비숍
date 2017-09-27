@@ -1,0 +1,120 @@
+package com.scsa.algorithm;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+public class Main1662_비숍 {
+	static int num;
+	static int[][] chess;
+	static int sizeOdd;
+	static int sizeEven;
+	static int maxOdd;
+	static int maxEven;
+	static ArrayList<int[]> blankEven = new ArrayList<int[]>();
+	static ArrayList<int[]> blankOdd = new ArrayList<int[]>();
+	static boolean[] slash;
+	static boolean[] xslash;
+
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		num = Integer.parseInt(in.readLine().trim());
+		chess= new int[num][num];
+		
+		StringTokenizer st = null;
+		for(int i=0; i<num; i++){
+			st = new StringTokenizer(in.readLine());
+			for(int j=0; j<num; j++){
+				chess[i][j] = Integer.parseInt(st.nextToken());
+				if(chess[i][j]==1) {
+					if((i+j)%2==0){
+						blankEven.add(new int[]{i,j});
+					}else{
+						blankOdd.add(new int[]{i,j});
+					}
+				}
+			}
+		}
+		
+		//blank는 빈 칸의 좌표를 받아 놓은 리스트
+		//그 리스트의 index에 따른 boolean 배열만들기
+		sizeOdd = blankOdd.size();
+		sizeEven = blankEven.size();
+		if(sizeOdd+sizeEven==0){
+			System.out.println(0);
+			return;
+		}
+		slash = new boolean[num*2-1];
+		xslash = new boolean[num*2-1];
+		
+		
+		//dfs에 들어가서 비숍을 세울 수 있는 최대 개수 구하기
+		if(sizeOdd!=0){
+			bishopOdd(0, 0);
+		}
+		if(sizeEven!=0){
+			bishopEven(0, 0);
+		}
+		
+		//max count 출력하기
+		System.out.println(maxOdd+maxEven);
+	}
+	
+	
+	public static void bishopOdd(int index, int count){
+		
+		if(index==sizeOdd){
+			if(count>maxOdd){
+				maxOdd = count;
+			}
+			return;
+		}
+		
+		int[] temp = blankOdd.get(index);
+		int x = temp[0];
+		int y = temp[1];
+		
+		
+		//그 자리에 비숍을 세울 수 있는지 체크하기 (양쪽 대각선 체크)
+		//세울 수 있으면 1)세우고 2)대각선 배열 true처리하고 3)index+1 ; count+1해서 들어가기
+		if(!slash[x+y]&&!xslash[x-y+num-1]){
+			slash[x+y] = true;
+			xslash[x-y+num-1] = true;
+			bishopOdd(index+1, count+1);
+			slash[x+y] = false;
+			xslash[x-y+num-1] = false;
+		}
+		//세울 수 없으면 1)세우지 않고 2)대각선 배열 처리 안하고 3)index+1 ; count로 들어가기
+		bishopOdd(index+1, count);
+	}
+	
+	public static void bishopEven(int index, int count){
+		
+		if(index==sizeEven){
+			if(count>maxEven){
+				maxEven = count;
+			}
+			return;
+		}
+		
+		int[] temp = blankEven.get(index);
+		int x = temp[0];
+		int y = temp[1];
+		
+		
+		//그 자리에 비숍을 세울 수 있는지 체크하기 (양쪽 대각선 체크)
+		//세울 수 있으면 1)세우고 2)대각선 배열 true처리하고 3)index+1 ; count+1해서 들어가기
+		if(!slash[x+y]&&!xslash[x-y+num-1]){
+			slash[x+y] = true;
+			xslash[x-y+num-1] = true;
+			bishopEven(index+1, count+1);
+			slash[x+y] = false;
+			xslash[x-y+num-1] = false;
+		}
+		//세울 수 없으면 1)세우지 않고 2)대각선 배열 처리 안하고 3)index+1 ; count로 들어가기
+		bishopEven(index+1, count);
+	}
+
+}
