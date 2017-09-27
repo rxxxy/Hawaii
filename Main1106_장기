@@ -1,0 +1,67 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main1106_장기 {
+	static int[][] janggi;
+	static int[][] moving = {{-2,-1}, {-2,1}, {-1,2}, {1,2}, {2,1}, {2,-1}, {1,-2}, {-1,-2}};
+	static Queue<int[]> que = new LinkedList<>();
+	static int num1;
+	static int num2;
+	static int[] start;
+	static int[] end;
+	
+	public static void getZzol(){
+		int[] temp = null;
+		int xx = 0;
+		int yy = 0;
+		int count = 0;
+		
+		while(!que.isEmpty()){
+			temp = que.poll();
+			count = janggi[temp[0]][temp[1]];
+			if(temp[0]==end[0]&&temp[1]==end[1]){
+				return;
+			}
+			
+			for(int i=0; i<8; i++){
+				xx = temp[0]+moving[i][0];
+				yy = temp[1]+moving[i][1];
+				if(xx>=0&&xx<num1&&yy>=0&&yy<num2&&(janggi[xx][yy]==0||janggi[xx][yy]>count+1)){
+					janggi[xx][yy] = count+1;
+					que.add(new int[]{xx,yy});
+				}
+			}
+			
+		}
+		
+	}
+	public static void main(String[] args) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(in.readLine());
+		num1 = Integer.parseInt(st.nextToken());
+		num2 = Integer.parseInt(st.nextToken());
+		janggi = new int[num1][num2];
+		start = new int[2];
+		end = new int[2];
+		st = new StringTokenizer(in.readLine());
+		start[0] = Integer.parseInt(st.nextToken())-1;
+		start[1] = Integer.parseInt(st.nextToken())-1;
+		end[0] = Integer.parseInt(st.nextToken())-1;
+		end[1] = Integer.parseInt(st.nextToken())-1;
+		
+		
+		janggi[start[0]][start[1]] = 1;
+		que.add(new int[]{start[0],start[1]});
+		
+		getZzol();
+		
+		System.out.println(janggi[end[0]][end[1]]-1);
+		
+		
+	}
+
+}
