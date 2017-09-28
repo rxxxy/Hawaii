@@ -1,0 +1,102 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main2261_경로찾기 {
+	static int num;
+	static int size;
+	static int[][] binary;
+	static boolean[] visited; //이미 지나온 곳인지 체크하기
+	static int[] beforeIndex; //방금 전에 들렸던 루트 저장하기
+	
+	static int start;
+	static int end;
+	
+	static Queue<Integer> que = new LinkedList<>();
+	
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(in.readLine());
+		num = Integer.parseInt(st.nextToken());
+		size = Integer.parseInt(st.nextToken());
+		binary = new int[num][size];
+		visited = new boolean[num];
+		beforeIndex = new int[num];
+		
+		
+		String digits = null;
+		for(int i=0; i<num; i++){
+			digits = in.readLine().trim();
+			for(int j=0; j<size; j++){
+				binary[i][j] = Integer.parseInt(""+digits.charAt(j));
+			}
+		}
+		
+		st = new StringTokenizer(in.readLine());
+		start = Integer.parseInt(st.nextToken())-1;
+		end = Integer.parseInt(st.nextToken())-1;
+		
+		//첫 시작점 처리
+		visited[start] = true;
+		beforeIndex[start] = -1;
+		que.offer(start);
+		
+		//BFS
+		if(!hammingRoute()){
+			System.out.println(-1);
+			return;
+		}
+		
+		ArrayList<Integer> list = new ArrayList<>();
+		int index = end;
+		while(index!=-1){
+			list.add(0, index+1);
+			index = beforeIndex[index];
+		}
+		for(int i : list){
+			System.out.print(i+" ");
+		}
+		
+		
+	}
+	
+	public static boolean hammingRoute(){
+		
+		int temp = 0;
+		
+		while(!que.isEmpty()){
+			temp = que.poll();
+			
+			if(temp==end) return true;
+			
+			for(int i=0; i<num; i++){
+				if(!visited[i]&&hammingDistance(temp, i)){
+					visited[i] = true;
+					beforeIndex[i] = temp;
+					que.offer(i);
+				}
+			}
+		}
+		
+		return false;
+		
+	}
+	
+	public static boolean hammingDistance(int num1, int num2){
+		
+		int distance = 0;
+		
+		for(int i=0; i<size; i++){
+			if(binary[num1][i]!=binary[num2][i]) distance++;
+		}
+		
+		if(distance==1) return true;
+		else return false;
+		
+	}
+}
