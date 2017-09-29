@@ -1,0 +1,173 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main2578_버스갈아타기2 {
+	static int num1;
+	static int num2;
+	static int[][] map;
+	
+	static int busNum;
+	static int[][] busRoute;
+	static boolean[] visited;
+	static int[] start;
+	static int[] end;
+	
+	static ArrayList<Integer> endBus = new ArrayList<>();
+	static Queue<int[]> que = new LinkedList<>();
+	
+	public static void main(String[] args) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(in.readLine());
+		num1 = Integer.parseInt(st.nextToken());
+		num2 = Integer.parseInt(st.nextToken());
+		busNum = Integer.parseInt(in.readLine().trim());
+		
+		
+		//1. 버스 루트 배열 만들어주기
+		busRoute = new int[busNum][4];
+		visited = new boolean[busNum];
+		int bus = 0;
+		for(int i=0; i<busNum; i++){
+			st = new StringTokenizer(in.readLine());
+			bus = Integer.parseInt(st.nextToken())-1;
+			for(int j=0; j<4; j++){
+				busRoute[bus][j] = Integer.parseInt(st.nextToken())-1;
+			}
+		}
+		
+		//2. 출발점과 도착점 받아주기
+		st = new StringTokenizer(in.readLine());
+		start = new int[2];
+		end = new int[2];
+		start[0] = Integer.parseInt(st.nextToken())-1;
+		start[1] = Integer.parseInt(st.nextToken())-1;
+		end[0] = Integer.parseInt(st.nextToken())-1;
+		end[1] = Integer.parseInt(st.nextToken())-1;
+		
+		
+		//3. 출발할 수 있는 버스와 도착할 수 있는 버스 찾기
+		//버스는 rowBus와 colBus가 있다.
+		//rowBus는 row를 이동하는 버스(col고정), colBus는 col을 이동하는 버스(row고정)
+		
+		//1) 출발 버스 찾자
+		for(int i=0; i<busNum; i++){
+			if(canGo(isRowBus(i),i,start[0],start[1])){
+				visited[i] = true;
+				//new int[]{버스인덱스, 몇번째 버스}
+				que.offer(new int[]{i, 1});
+			}
+		}
+		
+		//2) 도착 가능 버스 찾자
+		for(int i=0; i<busNum; i++){
+			if(canGo(isRowBus(i),i,end[0],end[1])){
+				endBus.add(i);
+			}
+		}
+		
+		
+		
+		//4. BFS 돌리자
+		getRoute();
+		
+	}
+	
+	public static void getRoute(){
+		int[] temp = null;
+		int index = 0;
+		int count = 0;
+		
+		while(!que.isEmpty()){
+			temp = que.poll();
+			index = temp[0];
+			count = temp[1];
+			
+			//지금 버스 인덱스가 endBus리스트 안에 있을 경우 리턴
+			if(endBus.contains(index)){
+				System.out.println(count);
+				return;
+			}
+			
+			
+			//지금 poll된애가 rowBus일때
+			if(isRowBus(index)){
+				for(int i=0; i<busNum; i++){
+					if(visited[i]) continue;
+					//찾을 애가 rowBus일때
+					if(isRowBus(i)
+						&&busRoute[index][1]==busRoute[i][1]
+						&&((busRoute[index][0]>=busRoute[i][0]&&busRoute[index][0]<=busRoute[i][2])
+						||(busRoute[index][2]>=busRoute[i][0]&&busRoute[index][2]<=busRoute[i][2]))){
+						
+						visited[i] = true;
+						que.offer(new int[]{i,count+1});
+						
+					//찾을 애가 colBus일때	
+					}else if(!isRowBus(i)
+						&&(busRoute[index][1]>=busRoute[i][1]&&busRoute[index][1]<=busRoute[i][3])
+						&&(busRoute[i][0]>=busRoute[index][0]&&busRoute[i][0]<=busRoute[index][2])){
+							
+						visited[i] = true;
+						que.offer(new int[]{i,count+1});
+					}
+				}
+				
+			//지금 poll된애가 colBus일때
+			}else{
+				for(int i=0; i<busNum; i++){
+					if(visited[i]) continue;
+					//찾을 애가 colBus일때
+					if(!isRowBus(i)
+						&&busRoute[index][0]==busRoute[i][0]
+						&&((busRoute[i][1]>=busRoute[index][1]&&busRoute[i][1]<=busRoute[index][3])
+						||(busRoute[i][3]>=busRoute[index][1]&&busRoute[i][3]<=busRoute[index][3]))){
+						
+						visited[i] = true;
+						que.offer(new int[]{i,count+1});
+					//찾을 애가 rowBus일때
+					}else if(isRowBus(i)
+						&&(busRoute[i][1]>=busRoute[index][1]&&busRoute[i][1]<=busRoute[index][3])
+						&&(busRoute[index][0]>=busRoute[i][0]&&busRoute[index][0]<=busRoute[i][2])){
+						
+						visited[i] = true;
+						que.offer(new int[]{i,count+1});
+					}
+				}
+			}
+			
+		}
+	}
+	
+	
+	public static boolean isRowBus(int index){
+		if(busRoute[index][1]==busRoute[index][3]){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public static boolean canGo(boolean isRowBus, int index, int x, int y){
+		
+		if(isRowBus){
+			if(busRoute[index][1]==y&&busRoute[index][0]<=x&&busRoute[index][2]>=x){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			if(busRoute[index][0]==x&&busRoute[index][1]<=y&&busRoute[index][3]>=y){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+	}
+
+}
