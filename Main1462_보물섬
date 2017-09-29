@@ -1,0 +1,102 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main1462_보물섬 {
+	static int num1;
+	static int num2;
+	static Queue<int[]> que = new LinkedList<>();
+	static int[][] moving = {{-1,0}, {1,0}, {0,-1}, {0,1}};
+	static int[][] bomul;
+	static int[][] tempMap;
+	static int max = 0;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(in.readLine().trim());
+		num1 = Integer.parseInt(st.nextToken());
+		num2 = Integer.parseInt(st.nextToken());
+		bomul = new int[num1][num2];
+		char[] temp = null;
+		for(int i=0; i<num1; i++){
+			temp = in.readLine().toCharArray();
+			for(int j=0; j<num2; j++){
+				if(temp[j]=='W'){
+					bomul[i][j] = 1;
+				}else{
+					bomul[i][j] = 0;
+				}
+			}
+		}
+		
+		
+		//1. 굴 찾기 작업 진행하기
+		//굴을 찾으면 그 굴 안의 좌표들을 모두 리스트에 넣는 메소드 작업
+		//2. 굴 마다 최단거리 최장시간 구하기
+		//한 굴의 모든 점이 시작점-도착점
+		//3. 한 굴이 끝나면 다음 굴 작업 시작하기
+		
+		for(int i=0; i<num1; i++){
+			for(int j=0; j<num2; j++){
+				//모든 0인점에서 BFS를 돌기
+				if(bomul[i][j]==0){
+					tempMap = new int[num1][num2];
+					//한 번 돌고나면 Map초기화가 필요하다
+					tempMapMake();
+					tempMap[i][j]=1;
+					que.offer(new int[]{i,j});
+					int time = getMaxTime();
+					if(max<time){
+						max = time;
+					}
+				}
+			}
+		}
+		
+		//4. 굴마다 최단거리 최장시간을 더한 리스트에서 최대값 구하기
+		System.out.println(max);
+		
+	}//END MAIN
+	
+	public static void tempMapMake(){
+		for(int i=0; i<num1; i++){
+			for(int j=0; j<num2; j++){
+				tempMap[i][j] = bomul[i][j];
+			}
+		}
+	}
+	
+	public static int getMaxTime(){
+		
+		//caveNumber를 가진 좌표만 지나가면서 탐색하기
+		//한 시작점 - 끝점까지 가고나면 최대값 기록한 후 cave를 list를 사용해서 caveNumber로 초기화하기
+		int[] temp = null;
+		int xx = 0;
+		int yy = 0;
+		int count = 0;
+		int time = 0;
+		
+		//bfs들어가기
+		while(!que.isEmpty()){
+			temp = que.poll();
+			
+			for(int k=0; k<4; k++){
+				xx = temp[0]+moving[k][0];
+				yy = temp[1]+moving[k][1];
+				count = tempMap[temp[0]][temp[1]];
+				
+				if(xx>=0&&xx<num1&&yy>=0&&yy<num2&&tempMap[xx][yy]==0){
+					tempMap[xx][yy] = count+1;
+					que.offer(new int[]{xx,yy});
+				}
+			}
+		}
+		
+		time = count-1;
+		return time;
+		
+	}
+}
