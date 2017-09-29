@@ -1,0 +1,363 @@
+package jungol;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main1006_로봇 {
+
+	static int num1;
+	static int num2;
+	static int[][] map;
+	static int[] end = new int[3];
+	static int[][] eastMove = {{0,3}, {0,2}, {0,1}};
+	static int[][] westMove = {{0,-3}, {0,-2}, {0,-1}};
+	static int[][] southMove = {{3,0}, {2,0}, {1,0}};
+	static int[][] northMove = {{-3,0}, {-2,0}, {-1,0}};
+	
+	static Queue<int[]> que = new LinkedList<>();
+	
+	public static void main(String[] args) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(in.readLine());
+		num1 = Integer.parseInt(st.nextToken());
+		num2 = Integer.parseInt(st.nextToken());
+		map = new int[num1][num2];
+		
+		
+		for(int i=0; i<num1; i++){
+			st = new StringTokenizer(in.readLine());
+			for(int j=0; j<num2; j++){
+				map[i][j] = Integer.parseInt(st.nextToken());
+			}
+		}
+		
+		st = new StringTokenizer(in.readLine());
+		int[] start = new int[3];
+		start[0] = Integer.parseInt(st.nextToken())-1;
+		start[1] = Integer.parseInt(st.nextToken())-1;
+		start[2] = Integer.parseInt(st.nextToken());
+		
+		st = new StringTokenizer(in.readLine());
+		end[0] = Integer.parseInt(st.nextToken())-1;
+		end[1] = Integer.parseInt(st.nextToken())-1;
+		end[2] = Integer.parseInt(st.nextToken());
+		
+		
+		//1. 시작점 설정하기
+		map[start[0]][start[1]] = 1;
+		que.offer(start);
+		
+		//2. BFS 돌리기
+		goRobot();
+	}
+	
+	
+	public static void goRobot(){
+		int[] temp = null;
+		int xx = 0;
+		int yy = 0;
+		int count = 0;
+		int dir = 0;
+		int[][] move = null;
+		
+outer:	while(!que.isEmpty()){
+			temp = que.poll();
+			count = map[temp[0]][temp[1]];
+			dir = temp[2];
+			
+			if(temp[0]==end[0]&&temp[1]==end[1]){
+				if(dir==end[2]){
+					System.out.println(count-1);
+					return;
+				}
+				
+				if(((end[2]==1||end[2]==2)&&(dir==4||dir==3))||
+						 ((end[2]==3||end[2]==4)&&(dir==1||dir==2))){
+					System.out.println(count+1-1);
+					return;
+				}
+				
+				if((end[2]==1&&dir==2)||(end[2]==2&&dir==1)
+						||(end[2]==3&&dir==4)||(end[2]==4&&dir==3)){
+					System.out.println(count+2-1);
+					return;
+				}
+			}
+			
+			
+			for(int k=1; k<=4; k++){
+				
+				//방향 안바꿔도 되는 애들
+				if(k==dir){
+					int tempCount = count;
+					
+					if(k==1) move = eastMove;
+					else if(k==2) move = westMove;
+					else if(k==3) move = southMove;
+					else if(k==4) move = northMove;
+					
+					
+					//3자리 이동이 가능한지 확인
+					boolean flag = true;
+					xx = temp[0] + move[0][0];
+					yy = temp[1] + move[0][1];
+					
+					flag = check(temp, xx, yy, tempCount);
+					
+					if(flag){
+						move(temp, xx, yy, tempCount, k);
+						mapPrint();
+						System.out.println();
+						System.out.println();
+						continue outer;
+					}
+					
+					
+					//2자리 이동이 가능한지 확인
+					
+					xx = temp[0] + move[1][0];
+					yy = temp[1] + move[1][1];
+					
+					flag = check(temp, xx, yy, tempCount);
+					
+					if(flag){
+						move(temp, xx, yy, tempCount, k);
+						mapPrint();
+						System.out.println();
+						System.out.println();
+						continue outer;
+					}
+					
+					
+					
+					//1자리 이동이 가능한지 확인
+					xx = temp[0] + move[2][0];
+					yy = temp[1] + move[2][1];
+					
+					flag = check(temp, xx, yy, tempCount);
+					
+					if(flag){
+						move(temp, xx, yy, tempCount, dir);
+						mapPrint();
+						System.out.println();
+						System.out.println();
+						continue outer;
+					}
+				
+				//방향 한 번만 바꾸는 애들
+				}else if(((k==1||k==2)&&(dir==4||dir==3))||
+						 ((k==3||k==4)&&(dir==1||dir==2))){
+
+					int tempCount = count+1;
+					
+					if(k==1) move = eastMove;
+					else if(k==2) move = westMove;
+					else if(k==3) move = southMove;
+					else if(k==4) move = northMove;
+					
+					//3자리 이동이 가능한지 확인
+					boolean flag = true;
+					xx = temp[0] + move[0][0];
+					yy = temp[1] + move[0][1];
+					
+					flag = check(temp, xx, yy, tempCount);
+					
+					if(flag){
+						move(temp, xx, yy, tempCount, k);
+						mapPrint();
+						System.out.println();
+						System.out.println();
+						continue outer;
+					}
+					
+					
+					//2자리 이동이 가능한지 확인
+					
+					xx = temp[0] + move[1][0];
+					yy = temp[1] + move[1][1];
+					
+					flag = check(temp, xx, yy, tempCount);
+					
+					if(flag){
+						move(temp, xx, yy, tempCount, k);
+						mapPrint();
+						System.out.println();
+						System.out.println();
+						continue outer;
+					}
+					
+					
+					
+					//1자리 이동이 가능한지 확인
+					xx = temp[0] + move[2][0];
+					yy = temp[1] + move[2][1];
+					
+					flag = check(temp, xx, yy, tempCount);
+					
+					if(flag){
+						move(temp, xx, yy, tempCount, k);
+						mapPrint();
+						System.out.println();
+						System.out.println();
+						continue outer;
+					}
+					
+					
+					
+				
+				//방향 두번이나 바꾸는 애들
+				}else if((k==1&&dir==2)||(k==2&&dir==1)
+						||(k==3&&dir==4)||(k==4&&dir==3)){
+					
+					int tempCount = count+2;
+					
+					if(k==1) move = eastMove;
+					else if(k==2) move = westMove;
+					else if(k==3) move = southMove;
+					else if(k==4) move = northMove;
+					
+					//3자리 이동이 가능한지 확인
+					boolean flag = true;
+					xx = temp[0] + move[0][0];
+					yy = temp[1] + move[0][1];
+					
+					flag = check(temp, xx, yy, tempCount);
+					
+					if(flag){
+						move(temp, xx, yy, tempCount, k);
+						mapPrint();
+						System.out.println();
+						System.out.println();
+						continue outer;
+					}
+					
+					
+					//2자리 이동이 가능한지 확인
+					
+					xx = temp[0] + move[1][0];
+					yy = temp[1] + move[1][1];
+					
+					flag = check(temp, xx, yy, tempCount);
+					
+					if(flag){
+						move(temp, xx, yy, tempCount, k);
+						mapPrint();
+						System.out.println();
+						System.out.println();
+						continue outer;
+					}
+					
+					
+					
+					//1자리 이동이 가능한지 확인
+					xx = temp[0] + move[2][0];
+					yy = temp[1] + move[2][1];
+					
+					flag = check(temp, xx, yy, tempCount);
+					
+					if(flag){
+						move(temp, xx, yy, tempCount, k);
+						mapPrint();
+						System.out.println();
+						System.out.println();
+						continue outer;
+					}
+					
+				}
+				
+				
+			}
+			
+		}
+			
+	}
+	
+	
+	public static void move(int[] temp, int xx, int yy, int count, int dir){
+		if(temp[0]==xx){
+			if(temp[1]<yy){
+				for(int i=temp[1]+1; i<=yy; i++){
+					map[xx][i] = count+1;
+					que.offer(new int[]{xx,i,dir});
+				}
+			}else if(temp[1]>yy){
+				for(int i=yy; i<=temp[1]-1; i++){
+					map[xx][i] = count+1;
+					que.offer(new int[]{xx,i,dir});
+				}
+			}
+		}else if(temp[1]==yy){
+			if(temp[0]<xx){
+				for(int i=temp[0]+1; i<=xx; i++){
+					map[i][yy] = count+1;
+					que.offer(new int[]{i,yy,dir});
+				}
+			}else if(temp[0]>xx){
+				for(int i=xx; i<=temp[0]-1; i++){
+					map[i][yy] = count+1;
+					que.offer(new int[]{i,yy,dir});
+				}
+			}
+		}
+	}
+	
+	public static boolean check(int[] xy, int xx, int yy, int count){
+		
+		int x = xy[0];
+		int y = xy[1];
+		
+		if(xx>=0&&xx<num1&&yy>=0&&yy<num2&&
+				(map[xx][yy]==0||map[xx][yy]>count+1)){
+			if(x==xx){
+				if(y<yy){
+					for(int i=y+1; i<=yy; i++){
+						if(map[xx][i]==1){
+							return false;
+						}
+					}
+				}else if(y>yy){
+					for(int i=yy; i<=y-1; i++){
+						if(map[xx][i]==1){
+							return false;
+						}
+					}
+				}
+				
+			}else if(y==yy){
+				if(x<xx){
+					for(int i=x+1; i<=xx; i++){
+						if(map[i][yy]==1){
+							return false;
+						}
+					}
+				}else if(x>xx){
+					for(int i=xx; i<=x-1; i++){
+						if(map[i][yy]==1){
+							return false;
+						}
+					}
+				}
+			}
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	public static void mapPrint(){
+		for(int i=0; i<num1; i++){
+			for(int j=0; j<num2; j++){
+				System.out.print(map[i][j]+" ");
+			}
+			System.out.println();
+		}
+	}
+		
+}
+
