@@ -1,0 +1,185 @@
+package jungol;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Main1180_Dessert {
+	static int num;
+	static char[] gihos = new char[]{'+', '-', '.'};
+	static char[] giho;
+	static Queue<Integer> que = new LinkedList<>();
+	static int count;
+	static StringBuilder sb = null;
+	static int sum;
+	static char pre = '0';
+
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		num = Integer.parseInt(in.readLine().trim());
+		giho = new char[num-1];
+		
+		//1. 식을 배열에 넣어주기
+		for(int i=1; i<=num; i++){
+			que.offer(i);
+		}
+		
+		//2. 식 계산하는 DFS돌리기
+		dessert(0);
+		
+		//3. 카운트 출력하기
+		System.out.println(count);
+	}
+	
+	
+	public static void dessert(int index){
+		
+		
+		if(index==num-1){
+			
+			sum = 0;
+			pre = '0';
+			sb = null;
+			
+			for(int i=0; i<num-1; i++){
+				switch(giho[i]){
+				
+				case '+' :
+					if(sb==null){
+						if(pre!='0'){
+							calculate();
+						}else{
+							sum+=que.poll();
+						}
+					}else{
+						if(pre!='0'){
+							sbCalculate();
+						}else{
+							sum+=Integer.parseInt(sb.toString());
+							sb = null;
+						}
+					}
+					
+					pre = '+';
+					break;
+					
+				case '-' :
+					if(sb==null){
+						if(pre!='0'){
+							calculate();
+						}else{
+							sum+=que.poll();
+						}
+					}else{
+						if(pre!='0'){
+							sbCalculate();
+						}else{
+							sum-=Integer.parseInt(sb.toString());
+							sb = null;
+						}
+					}
+					
+					pre = '-';
+					break;
+					
+				case '.' :
+					if(sb==null){
+						sb = new StringBuilder();
+						sb.append(que.poll());
+						if(pre!='0'){
+						pre = giho[i-1];
+						}
+					}else{
+						sb.append(que.poll());
+					}
+				}
+			}
+			
+			if(!que.isEmpty()&&sb!=null){
+				sb.append(que.poll());
+			}else if(!que.isEmpty()&&sb==null){
+				sb = new StringBuilder();
+				sb.append(que.poll());
+			}
+			
+			if(sb!=null){
+				sbCalculate();
+			}else{
+				calculate();
+			}
+			
+			
+			//맞든 아니든 다시 que에 다 담고
+			//맞으면 출력하고 리턴
+			//틀리면 그냥 리턴
+			
+			for(int i=1; i<=num; i++){
+				que.offer(i);
+			}
+			
+			if(sum==0){
+				sb = new StringBuilder();
+				for(int i=0; i<num-1; i++){
+					sb.append(i+1);
+					sb.append(" ");
+					sb.append(giho[i]);
+					sb.append(" ");
+				}
+				sb.append(num);
+				
+				System.out.println(sb.toString());
+				count++;
+				return;
+			}else{
+				return;
+			}
+			
+		}
+		
+		for(int i=0; i<3; i++){
+			giho[index] = gihos[i];
+			dessert(index+1);
+		}
+		
+		
+	}
+	
+	
+	static void sbCalculate(){
+		switch(pre){
+		
+		case '+' :
+			sum += Integer.parseInt(sb.toString());
+			break;
+			
+		case '-' :
+			sum -= Integer.parseInt(sb.toString());
+			break;
+			
+		case '0' :
+			sum += Integer.parseInt(sb.toString());
+			break;
+		}
+		
+	}
+	
+	static void calculate(){
+		switch(pre){
+			
+		case '+' :
+			sum += que.poll();
+			break;
+			
+		case '-' :
+			sum -= que.poll();
+			break;
+			
+		}
+		
+	}
+	
+	
+
+}
