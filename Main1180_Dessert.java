@@ -1,23 +1,21 @@
-package jungol;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class Main1180_Dessert {
-	static int nNum; //¼ıÀÚ °³¼ö
-	static int gNum; //±âÈ£ °³¼ö
+	static int nNum; //ìˆ«ì ê°œìˆ˜
+	static int gNum; //ê¸°í˜¸ ê°œìˆ˜
 	
-	static char[] gihos = new char[]{'+', '-', '.'}; //¾µ ¼ö ÀÖ´Â ±âÈ£
-	static char[] gihoArray; //±âÈ£ ´ãÀ» ¹è¿­
+	static char[] gihos = new char[]{'+', '-', '.'}; //ì“¸ ìˆ˜ ìˆëŠ” ê¸°í˜¸
+	static char[] gihoArray; //ê¸°í˜¸ ë‹´ì„ ë°°ì—´
 	
-	static StringBuilder sb = new StringBuilder(); //.À¸·Î ÀÌ¾îÁö´Â ¼ıÀÚ¸¦ ´ãÀ» ½ºÆ®¸µºô´õ
-	static StringBuilder psb; //ÇÁ¸°Æ®ÇÒ ½ºÆ®¸µºô´õ
+	static int temp = 0;
+	static StringBuilder psb; //í”„ë¦°íŠ¸í•  ìŠ¤íŠ¸ë§ë¹Œë”
 	
-	static char pre = '0'; //¹Ù·Î ÀÌÀü ¿¬»êÀÚ ´ã±â
+	static char pre = '0'; //ë°”ë¡œ ì´ì „ ì—°ì‚°ì ë‹´ê¸°
 	static char prepre = '0';
-	static double sum; //ÃÑ ÇÕ °è»êÇÒ Á¤¼ö
-	static int count; //¿ÇÀº ´ä °³¼ö
+	static double sum; //ì´ í•© ê³„ì‚°í•  ì •ìˆ˜
+	static int count; //ì˜³ì€ ë‹µ ê°œìˆ˜
 	
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
@@ -25,15 +23,11 @@ public class Main1180_Dessert {
 		nNum = Integer.parseInt(in.readLine().trim());
 		gNum = nNum-1;
 		gihoArray = new char[gNum];
-		sb = new StringBuilder();
-		for(int i=0; i<nNum/2; i++){
-			sb.append(i+1);
-		}
 		
-		//±âÈ£ ¹è¿­ Ã¤¿ì´Â DFS·Î Ãâ¹ß
+		//ê¸°í˜¸ ë°°ì—´ ì±„ìš°ëŠ” DFSë¡œ ì¶œë°œ
 		dessert(0);
 		
-		//ÃÑ °³¼ö Ãâ·ÂÇÏ±â
+		//ì´ ê°œìˆ˜ ì¶œë ¥í•˜ê¸°
 		System.out.println(count);
 		
 	}
@@ -42,32 +36,36 @@ public class Main1180_Dessert {
 		
 		
 		if(index==gNum){
-			//½Ä °è»êÇØ¼­ ºÁ¼­ ´äÀÌ ¸Â´ÂÁö ÇØº¸±â
-			//sum°ú sb¿Í ÀÌÀü ¿¬»êÀÚ ÃÊ±âÈ­
+			//ì‹ ê³„ì‚°í•´ì„œ ë´ì„œ ë‹µì´ ë§ëŠ”ì§€ í•´ë³´ê¸°
+			//sumê³¼ sbì™€ ì´ì „ ì—°ì‚°ì ì´ˆê¸°í™”
 			sum = 0;
-			sb.delete(0, sb.length());
+			temp = 0;
 			pre = '0';
 			prepre = '0';
 			int numPos = 1;
 			int gihoPos = 0;
 			
-			//±âÈ£¸¦ ´Ù ¾µ ¶§±îÁö while¹® µ¹¸®±â
+			//ê¸°í˜¸ë¥¼ ë‹¤ ì“¸ ë•Œê¹Œì§€ whileë¬¸ ëŒë¦¬ê¸°
 			while(gihoPos<gNum){
 				while(gihoPos<gNum&&gihoArray[gihoPos]=='.'){
 					if(pre=='0'){
-						sb.append(numPos);
+						temp += numPos;
 						prepre = '0';
 						pre = '.';
 						gihoPos++;
 						numPos++;
 					}else if(pre!='.'){
-						sb.append(numPos);
+						temp += numPos;
 						prepre = pre;
 						pre='.';
 						gihoPos++;
 						numPos++;
 					}else{
-						sb.append(numPos);
+						if(numPos>=10){
+							temp = temp*100+numPos;
+						}else{
+							temp = temp*10+numPos;
+						}
 						pre='.';
 						gihoPos++;
 						numPos++;
@@ -94,20 +92,28 @@ public class Main1180_Dessert {
 				
 			}
 			
-			//¸¶Áö¸·À¸·Î ³²Àº ¼ıÀÚ Ã³¸®ÇÏ±â
-			if(!sb.toString().equals("")){
+			//ë§ˆì§€ë§‰ìœ¼ë¡œ ë‚¨ì€ ìˆ«ì ì²˜ë¦¬í•˜ê¸°
+			if(temp!=0){
 				switch(prepre){
 				case '0' :
 					return;
 					
 				case '+' :
-					sb.append(nNum);
-					sum += Double.parseDouble(sb.toString());
+					if(numPos>=10){
+						temp = temp*100+numPos;
+					}else{
+						temp = temp*10+numPos;
+					}
+					sum += temp;
 					break;
 					
 				case '-' :
-					sb.append(nNum);
-					sum -= Double.parseDouble(sb.toString());
+					if(numPos>=10){
+						temp = temp*100+numPos;
+					}else{
+						temp = temp*10+numPos;
+					}
+					sum -= temp;
 					break;
 				}
 			}else{
@@ -156,18 +162,30 @@ public class Main1180_Dessert {
 		if(pre=='0'){
 			sum += numIndex;
 		}else if(pre=='.'&&prepre=='0'){
-			sb.append(numIndex);
-			sum += Double.parseDouble(sb.toString());
-			sb.delete(0, sb.length());
+			if(numIndex>=10){
+				temp = temp*100+numIndex;
+			}else{
+				temp = temp*10+numIndex;
+			}
+			sum += temp;
+			temp = 0;
 		}else if(pre=='.'&&prepre!='0'){
 			if(prepre=='+'){
-				sb.append(numIndex);
-				sum += Double.parseDouble(sb.toString());
-				sb.delete(0, sb.length());
+				if(numIndex>=10){
+					temp = temp*100+numIndex;
+				}else{
+					temp = temp*10+numIndex;
+				}
+				sum += temp;
+				temp = 0;
 			}else if(prepre=='-'){
-				sb.append(numIndex);
-				sum -= Double.parseDouble(sb.toString());
-				sb.delete(0, sb.length());
+				if(numIndex>=10){
+					temp = temp*100+numIndex;
+				}else{
+					temp = temp*10+numIndex;
+				}
+				sum -= temp;
+				temp = 0;
 			}
 		}else if(pre=='+'){
 			sum += numIndex;
