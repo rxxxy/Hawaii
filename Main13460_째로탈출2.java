@@ -115,58 +115,75 @@ public class Main13460_Â°·ÎÅ»Ãâ2 {
 						blueY = blueY + moving[i][1];
 					}
 					
-					if(board[redX][redY]=='#'){
+					if(redX>=0&&redX<num1&&redY>=0&&redY<num2){
+						if(board[redX][redY]=='#'){
+							redGoFlag = false;
+							redX = redX - moving[i][0];
+							redY = redY - moving[i][1];
+						}else if(redX==blueX&&redY==blueY){
+							redGoFlag = false;
+							redX = redX - moving[i][0];
+							redY = redY - moving[i][1];
+						}else if(redX==success[0]&&redY==success[1]){
+							resultRedFlag = true;
+							redGoFlag = false;
+							redX = 0;
+							redY = 0;
+						}else if(redX+moving[i][0]==blueX
+								&&redY+moving[i][1]==blueY
+								&&board[blueX][blueY]=='#'){
+							redGoFlag = false;
+							redX = redX-moving[i][0];
+							redY = redY-moving[i][1];
+						}
+					}else{
 						redGoFlag = false;
-						redX = redX - moving[i][0];
-						redY = redY - moving[i][1];
-					}else if(redX==blueX&&redY==blueY){
-						redX = redX - moving[i][0];
-						redY = redY - moving[i][1];
-					}else if(redX==success[0]&&redY==success[1]){
-						resultRedFlag = true;
-						redX = redX + moving[i][0];
-						redY = redY + moving[i][1];
-					}else if(redX+moving[i][0]==blueX&&
-							redY+moving[i][1]==blueY&&
-							board[blueX][blueY]=='#'){
-						redGoFlag = false;
-						redX = redX - moving[i][0];
-						redY = redY - moving[i][1];
+						redX = redX-moving[i][0];
+						redY = redY-moving[i][1];
 					}
 					
-					if(board[blueX][blueY]=='#'){
+					
+					if(blueX>=0&&blueX<num1&&blueY>=0&&blueY<num2){
+						if(board[blueX][blueY]=='#'){
+							blueGoFlag = false;
+							blueX = blueX - moving[i][0];
+							blueY = blueY - moving[i][1];
+						}else if(blueX==redX&&blueY==redY){
+							blueGoFlag = false;
+							blueX = blueX - moving[i][0];
+							blueY = blueY - moving[i][1];
+						}else if(blueX==success[0]&&blueY==success[1]){
+							resultBlueFlag = true;
+							blueGoFlag = false;
+							blueX = 0;
+							blueY = 0;
+						}
+					}else{
 						blueGoFlag = false;
 						blueX = blueX - moving[i][0];
 						blueY = blueY - moving[i][1];
-					}else if(blueX==redX&&blueY==redY){
-						blueX = blueX - moving[i][0];
-						blueY = blueY - moving[i][1];
-					}else if(blueX==success[0]&&blueY==success[1]){
-						resultBlueFlag = true;
-						blueX = blueX + moving[i][0];
-						blueY = blueY + moving[i][1];
-					}else if(blueX+moving[i][0]==redX&&
-							blueY+moving[i][1]==redY&&
-							board[redX][redY]=='#'){
-						blueGoFlag = false;
-						blueX = blueX - moving[i][0];
-						blueY = blueY - moving[i][1];
 					}
 					
-					
-					if(resultRedFlag||resultBlueFlag){
-						resultCount = count+1;
-						return;
-					}else if(count+1==10){
-						overTen = true;
-						return;
-					}
+				}
+				
+				if(resultRedFlag||resultBlueFlag){
+					resultCount = count+1;
+					return;
 				}
 				
 				redGoFlag = true;
 				blueGoFlag = true;
-				que.offer(new int[]{redX, redY, 'R',  count+1});
-				que.offer(new int[]{blueX, blueY, 'R',  count+1});
+				
+				if(redX==red[0]&&redY==red[1]&&blueX==blue[0]&&blueY==blue[1]){
+					continue;
+				}else{
+					if(count+1==10){
+						overTen = true;
+						return;
+					}
+					que.offer(new int[]{redX, redY, 'R',  count+1});
+					que.offer(new int[]{blueX, blueY, 'B',  count+1});
+				}
 				
 			}
 		}
