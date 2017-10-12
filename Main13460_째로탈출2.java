@@ -10,73 +10,71 @@ import java.util.StringTokenizer;
 public class Main13460_째로탈출2 {
 	static int num1;
 	static int num2;
-	static char[][] board;
-	static int[] redStart = new int[2];
-	static int[] blueStart = new int[2];
+	static int[][] board;
 	static int[] success = new int[2];
+	static int[][] moving = new int[][]{{0,1}, {0,-1}, {1,0}, {-1,0}};
 	
 	static Queue<int[]> que = new LinkedList<>();
-	static int[][] moving = new int[][]{{0,1}, {0,-1}, {1,0}, {-1,0}};
-	static int resultCount;
-	static boolean resultRedFlag;
-	static boolean resultBlueFlag;
+	static boolean redFlag;
+	static boolean blueFlag;
+	static int result = -1;
 	
-	static boolean redGoFlag = true;
-	static boolean blueGoFlag = true;
-	static boolean overTen;
-
+	static int redXsmall;
+	static int redXbig;
+	static int redYsmall;
+	static int redYbig;
+	static int blueXsmall;
+	static int blueXbig;
+	static int blueYsmall;
+	static int blueYbig;
+	
 	public static void main(String[] args) throws IOException {
-		
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(in.readLine());
-		
 		num1 = Integer.parseInt(st.nextToken());
 		num2 = Integer.parseInt(st.nextToken());
+		int[] redStart = new int[2];
+		int[] blueStart = new int[2];
 		
-		
-		//1. 보드판 채워주기
-		char[] temp = null;
-		board = new char[num1][num2];
+		//1. 보드판 배열 채우기
+		char[] array = null;
+		board = new int[num1][num2];
 		for(int i=0; i<num1; i++){
-			temp = in.readLine().toCharArray();
+			array = in.readLine().trim().toCharArray();
 			for(int j=0; j<num2; j++){
-				board[i][j] = temp[j];
-				if(board[i][j]=='R'){ 
-					redStart[0] = i; 
-					redStart[1] = j; 
-					board[i][j] = '.';
-				}else if(board[i][j]=='B'){
+				if(array[j]=='.'){
+					board[i][j] = 0;
+				}else if(array[j]=='#'){
+					board[i][j] = 1;
+				}else if(array[j]=='R'){
+					board[i][j] = 0;
+					redStart[0] = i;
+					redStart[1] = j;
+				}else if(array[j]=='B'){
+					board[i][j] = 0;
 					blueStart[0] = i;
-					blueStart[1] = j; 
-					board[i][j] = '.';
-				}else if(board[i][j]=='O'){ 
-					success[0] = i; 
-					success[1] = j; 
+					blueStart[1] = j;
+				}else if(array[j]=='O'){
+					board[i][j] = 0;
+					success[0] = i;
+					success[1] = j;
 				}
 			}
 		}
 		
 		
-		//2. 시작점 큐에 담아주기
-		que.offer(new int[]{redStart[0], redStart[1], 'R', 0});
-		que.offer(new int[]{blueStart[0], blueStart[1], 'B', 0});
+		//2. 큐에 시작점 채워주기
+		que.offer(new int[]{redStart[0], redStart[1], 0});
+		que.offer(new int[]{blueStart[0], blueStart[1], 0});
 		
 		
-		//3. BFS돌리기
+		//3. BFS 돌리기
 		zzero();
 		
-		//4. count출력하기
-		if(resultBlueFlag){
-			System.out.println(-1);
-		}else if(resultRedFlag){
-			System.out.println(resultCount);
-		}
 		
-		if(overTen){
-			System.out.println(-1);
-		}
+		//4. 카운트 출력하기
+		System.out.println(result);
 	}
-	
 	
 	
 	public static void zzero(){
@@ -94,98 +92,103 @@ public class Main13460_째로탈출2 {
 			
 			red = que.poll();
 			blue = que.poll();
+			count = red[2];
+			if(count==10) return;
 			
 			for(int i=0; i<4; i++){
-				redX = red[0];
-				redY = red[1];
-				count = red[3];
-				blueX = blue[0];
-				blueY = blue[1];
+				redFlag = false;
+				blueFlag = false;
+				redX = red[0]+moving[i][0];
+				redY = red[1]+moving[i][1];
+				blueX = blue[0]+moving[i][0];
+				blueY = blue[1]+moving[i][1];
 				
+				
+				//RED 이동하기
 				while(true){
-					
-					if(!redGoFlag&&!blueGoFlag) break;
-					
-					if(redGoFlag){
-						redX = redX + moving[i][0];
-						redY = redY + moving[i][1];
+					if(board[redX][redY]==1){
+						break;
+					}else if(redX==success[0]&&redY==success[1]){
+						redFlag = true;
 					}
-					if(blueGoFlag){
-						blueX = blueX + moving[i][0];
-						blueY = blueY + moving[i][1];
-					}
-					
-					if(redX>=0&&redX<num1&&redY>=0&&redY<num2){
-						if(board[redX][redY]=='#'){
-							redGoFlag = false;
-							redX = redX - moving[i][0];
-							redY = redY - moving[i][1];
-						}else if(redX==blueX&&redY==blueY){
-							redGoFlag = false;
-							redX = redX - moving[i][0];
-							redY = redY - moving[i][1];
-						}else if(redX==success[0]&&redY==success[1]){
-							resultRedFlag = true;
-							redGoFlag = false;
-							redX = 0;
-							redY = 0;
-						}else if(redX+moving[i][0]==blueX
-								&&redY+moving[i][1]==blueY
-								&&board[blueX][blueY]=='#'){
-							redGoFlag = false;
-							redX = redX-moving[i][0];
-							redY = redY-moving[i][1];
-						}
-					}else{
-						redGoFlag = false;
-						redX = redX-moving[i][0];
-						redY = redY-moving[i][1];
-					}
-					
-					
-					if(blueX>=0&&blueX<num1&&blueY>=0&&blueY<num2){
-						if(board[blueX][blueY]=='#'){
-							blueGoFlag = false;
-							blueX = blueX - moving[i][0];
-							blueY = blueY - moving[i][1];
-						}else if(blueX==redX&&blueY==redY){
-							blueGoFlag = false;
-							blueX = blueX - moving[i][0];
-							blueY = blueY - moving[i][1];
-						}else if(blueX==success[0]&&blueY==success[1]){
-							resultBlueFlag = true;
-							blueGoFlag = false;
-							blueX = 0;
-							blueY = 0;
-						}
-					}else{
-						blueGoFlag = false;
-						blueX = blueX - moving[i][0];
-						blueY = blueY - moving[i][1];
-					}
-					
+					redX += moving[i][0];
+					redY += moving[i][1];
 				}
 				
-				if(resultRedFlag||resultBlueFlag){
-					resultCount = count+1;
-					return;
+				redX = redX - moving[i][0];
+				redY = redY - moving[i][1];
+				
+				
+				//BLUE 이동하기
+				while(true){
+					if(board[blueX][blueY]==1){
+						break;
+					}else if(blueX==success[0]&&blueY==success[1]){
+						blueFlag = true;
+					}
+					blueX += moving[i][0];
+					blueY += moving[i][1];
 				}
 				
-				redGoFlag = true;
-				blueGoFlag = true;
+				blueX = blueX - moving[i][0];
+				blueY = blueY - moving[i][1];
 				
-				if(redX==red[0]&&redY==red[1]&&blueX==blue[0]&&blueY==blue[1]){
+				//RED만 들어갔다면 return, 둘다 들어갔으면 continue, 둘다 안들어갔으면 que에 넣기
+				if(blueFlag) {
 					continue;
+				}else if(redFlag) {
+					result = count+1;
+					return;
 				}else{
-					if(count+1==10){
-						overTen = true;
-						return;
+					//이동 후 체크하기
+					//두 개가 만났다면 그 전 자리와 비교해서 뭐가 앞에 있어야 하는지 잡기
+					if(redX==blueX && redY==blueY){
+						if(i==0){
+							if(blue[1]>red[1]){
+								redX -= moving[i][0];
+								redY -= moving[i][1];
+							}else{
+								blueX -= moving[i][0];
+								blueY -= moving[i][1];
+							}
+						}else if(i==1){
+							if(blue[1]<red[1]){
+								redX -= moving[i][0];
+								redY -= moving[i][1];
+							}else{
+								blueX -= moving[i][0];
+								blueY -= moving[i][1];
+							}
+						}else if(i==2){
+							if(blue[0]>red[0]){
+								redX -= moving[i][0];
+								redY -= moving[i][1];
+							}else{
+								blueX -= moving[i][0];
+								blueY -= moving[i][1];								
+							}
+						}else if(i==3){
+							if(blue[0]<red[0]){
+								redX -= moving[i][0];
+								redY -= moving[i][1];
+							}else{
+								blueX -= moving[i][0];
+								blueY -= moving[i][1];								
+							}
+						}
 					}
-					que.offer(new int[]{redX, redY, 'R',  count+1});
-					que.offer(new int[]{blueX, blueY, 'B',  count+1});
+					
+					
+					if(redX==red[0]&&redY==red[1]&&blueX==blue[0]&&blueY==blue[1]){
+						continue;
+					}
+
+					que.offer(new int[]{redX, redY, count+1});
+					que.offer(new int[]{blueX, blueY, count+1});
+					
 				}
-				
 			}
 		}
 	}
+
 }
